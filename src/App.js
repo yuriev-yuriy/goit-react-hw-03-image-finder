@@ -4,7 +4,6 @@ import Searchbar from './components/Searchbar';
 import ImageGallery from './components/ImageGallery';
 import ImageGalleryItem from './components/ImageGalleryItem';
 import Button from './components/Button';
-import Modal from './components/Modal';
 import Loader from 'react-loader-spinner';
 
 class App extends Component {
@@ -14,18 +13,14 @@ class App extends Component {
     hits: [],
     error: null,
     status: 'idle',
-    showModal: false,
   };
-
-  componentDidMount() {
-    // this.fetchPic()
-  }
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.query !== prevState.query) {
       this.setState({ status: 'pending' });
       this.resetList();
       this.fetchPic();
+      return;
     }
     if (this.state.page !== prevState.page) {
       this.fetchPic();
@@ -64,9 +59,7 @@ class App extends Component {
   }
 
   getPage = () => {
-    this.setState({ status: 'pending' });
     this.setState(prevState => ({ page: prevState.page + 1 }));
-    this.setState({ status: 'resolved' });
   };
 
   resetPage() {
@@ -78,33 +71,20 @@ class App extends Component {
     this.resetPage();
   };
 
-  openModal = event => {
-    this.setState({ showModal: true });
-    const id = event;
-    // const aim = event;
-    console.log([id]);
-    //   if(this.state.showModal) {
-
-    // }
-  };
-
-  closeModal = () => {
-    this.setState({ showModal: false });
-  };
-
   render() {
-    const { query, hits, loading, error, status, page } = this.state;
+    const { hits, error, status } = this.state;
     if (status === 'idle') {
       return <Searchbar onSubmit={this.getInput} />;
     }
     if (status === 'pending') {
       return (
         <Loader
+          className={s.Loader}
           type="Puff"
           color="#00BFFF"
           height={100}
           width={100}
-          timeout={10000} //3 secs
+          timeout={3000} //3 secs
         />
       );
     }
@@ -118,39 +98,12 @@ class App extends Component {
         <>
           <Searchbar onSubmit={this.getInput} />
           <ImageGallery>
-            <ImageGalleryItem hits={hits} clickModal={this.openModal} />
+            <ImageGalleryItem hits={hits} />
           </ImageGallery>
-
-          {this.state.showModal && (
-            <Modal url={hits} closeModal={this.closeModal} />
-          )}
-
           <div>{hits.length ? <Button getPage={this.getPage} /> : null}</div>
         </>
       );
     }
-
-    // return (
-    //   <div className="App">
-
-    //     <Searchbar onSubmit={this.getInput} />
-    //     {error && <h1>{ error.message}</h1>}
-    //           <ImageGallery >
-    //       <ImageGalleryItem isLoaded={this.getHits} query={query} page={page} loading={this.loading} />
-    //     </ImageGallery>
-    //     {loading &&
-    //      <Loader
-    //     type="Puff"
-    //     color="#00BFFF"
-    //     height={100}
-    //     width={100}
-    //     timeout={1000} //3 secs
-    //       />}
-
-    //     {hits && <Button getPage={this.getPage }/>}
-    //     <Modal />
-    //   </div>
-    // );
   }
 }
 

@@ -1,21 +1,42 @@
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import s from './Modal.module.css';
 
-const Modal = ({ url, closeModal }) => {
-  console.log(url);
-  const clickOver = event => {
-    if (event.target === event.currentTarget) closeModal();
+class Modal extends Component {
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown = event => {
+    if (event.code === 'Escape') {
+      this.props.closeModal();
+    }
   };
-  return (
-    <div className={s.Overlay} onClick={clickOver}>
-      <div className={s.Modal}>
-        <img
-          src="https://pixabay.com/get/57e4d7434251ac14f6da8c7dda7936761336dae753526c48732f73d79f4bcd59ba_1280.jpg"
-          alt=""
-        />
+
+  clickOver = event => {
+    if (event.target === event.currentTarget) {
+      this.props.closeModal();
+    }
+  };
+
+  render() {
+    return (
+      <div className={s.Overlay} onClick={this.clickOver}>
+        <div className={s.Modal}>
+          <img src={this.props.url} alt="" />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+}
+
+Modal.propTypes = {
+  url: PropTypes.string.isRequired,
+  closeModal: PropTypes.func.isRequired,
 };
 
 export default Modal;

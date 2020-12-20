@@ -16,4 +16,8 @@ class Button extends Component {
   }
 }
 
+Button.propTypes = {
+  getPage: PropTypes.func.isRequired,
+};
+
 export default Button;

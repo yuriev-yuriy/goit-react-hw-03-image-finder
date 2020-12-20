@@ -8,7 +8,6 @@ class Searchbar extends Component {
   };
   changeInput = event => {
     this.setState({ input: event.currentTarget.value.toLowerCase() });
-    console.log(event.currentTarget.value);
   };
 
   makeSubmit = event => {
@@ -17,20 +16,19 @@ class Searchbar extends Component {
       return;
     }
     this.props.onSubmit(this.state.input);
-    console.log(this.state.input);
     this.setState({ input: '' });
   };
 
   render() {
     return (
       <header className={s.Searchbar}>
-        <form className="SearchForm" onSubmit={this.makeSubmit}>
-          <button type="submit" className="SearchForm-button">
-            <span className="s.SearchForm-button-label">Search</span>
+        <form className={s.SearchForm} onSubmit={this.makeSubmit}>
+          <button type={s.SearchFormbutton} className="SearchForm-button">
+            <span className={s.SearchFormbuttonlabel}>Search</span>
           </button>
 
           <input
-            className="SearchForm-input"
+            className={s.SearchForminput}
             type="text"
             autoComplete="off"
             autoFocus
@@ -43,5 +41,9 @@ class Searchbar extends Component {
     );
   }
 }
+
+Searchbar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 
 export default Searchbar;

@@ -6,4 +6,12 @@
   grid-template-columns: 1fr;
   grid-gap: 16px;
   padding-bottom: 24px;
+  position: relative;
+}
+.Loader {
+  position: absolute;
+  color: green;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 80px;
 }
