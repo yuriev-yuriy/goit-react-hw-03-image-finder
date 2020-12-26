@@ -5,6 +5,7 @@ import ImageGallery from './components/ImageGallery';
 import ImageGalleryItem from './components/ImageGalleryItem';
 import Button from './components/Button';
 import Loader from 'react-loader-spinner';
+import fetchPic from './services/Api';
 
 class App extends Component {
   state = {
@@ -16,43 +17,35 @@ class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
+    const query = this.state.query;
+    const page = this.state.page;
     if (this.state.query !== prevState.query) {
       this.setState({ status: 'pending' });
       this.resetList();
-      this.fetchPic();
+      fetchPic(query, page).then(({ hits }) => {
+        const newPic = hits;
+        this.setState(({ hits }) => ({
+          hits: [...hits, ...newPic],
+          status: 'resolved',
+        }));
+      });
       return;
     }
     if (this.state.page !== prevState.page) {
-      this.fetchPic();
+      this.setState({ status: 'pending' });
+      fetchPic(this.state.query, this.state.page).then(({ hits }) => {
+        const newPic = hits;
+        this.setState(({ hits }) => ({
+          hits: [...hits, ...newPic],
+          status: 'resolved',
+        }));
+      });
     }
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: 'smooth',
     });
   }
-
-  fetchPic = (page = 1) => {
-    fetch(
-      `https://pixabay.com/api/?q=${this.state.query}&page=${this.state.page}&key=18694203-d22239baec913b213273a87a8&image_type=photo&orientation=horizontal&per_page=12`,
-    )
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
-
-        return Promise.reject(
-          new Error(`Нет картинок по запросу ${this.state.query}`),
-        );
-      })
-      .then(({ hits }) => {
-        const newPic = hits;
-        this.setState(({ hits }) => ({
-          hits: [...hits, ...newPic],
-          status: 'resolved',
-        }));
-      })
-      .catch(error => this.state({ error, status: 'rejected' }));
-  };
 
   resetList() {
     this.setState({ hits: [] });
@@ -76,30 +69,26 @@ class App extends Component {
     if (status === 'idle') {
       return <Searchbar onSubmit={this.getInput} />;
     }
-    if (status === 'pending') {
-      return (
-        <Loader
-          className={s.Loader}
-          type="Puff"
-          color="#00BFFF"
-          height={100}
-          width={100}
-          timeout={3000} //3 secs
-        />
-      );
-    }
 
     if (status === 'rejected') {
       return <h1>{error.message}</h1>;
-    }
-
-    if (status === 'resolved') {
+    } else {
       return (
         <>
           <Searchbar onSubmit={this.getInput} />
           <ImageGallery>
             <ImageGalleryItem hits={hits} />
           </ImageGallery>
+          {status === 'pending' ? (
+            <Loader
+              className={s.Loader}
+              type="Puff"
+              color="#00BFFF"
+              height={100}
+              width={100}
+              timeout={3000} //3 secs
+            />
+          ) : null}
           <div>{hits.length ? <Button getPage={this.getPage} /> : null}</div>
         </>
       );
