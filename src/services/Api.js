@@ -1,18 +1,14 @@
+import axios from 'axios';
+
 const key = '18694203-d22239baec913b213273a87a8';
 const baseUrl = 'https://pixabay.com/api/';
 
-const fetchPic = (query, page = 1) => {
-  return fetch(
+const fetchPic = async (query, page = 1) => {
+  const response = await axios.get(
     `${baseUrl}?q=${query}&page=${page}&key=${key}&image_type=photo&orientation=horizontal&per_page=12`,
-  )
-    .then(res => {
-      if (res.ok) {
-        return res.json();
-      }
-
-      return Promise.reject(new Error(`Нет картинок по запросу ${query}`));
-    })
-    .catch(error => this.state({ error, status: 'rejected' }));
+  );
+  console.log(response.data);
+  return response.data;
 };
 
 export default fetchPic;

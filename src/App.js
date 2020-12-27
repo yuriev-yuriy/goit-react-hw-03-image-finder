@@ -11,40 +11,39 @@ class App extends Component {
   state = {
     query: '',
     page: 1,
-    hits: [],
+    images: [],
     error: null,
     status: 'idle',
   };
 
-  componentDidUpdate(prevProps, prevState) {
+  async componentDidUpdate(prevProps, prevState) {
     const query = this.state.query;
     const page = this.state.page;
     if (this.state.query !== prevState.query) {
       this.setState({ status: 'pending' });
       this.resetList();
-      fetchPic(query, page).then(({ hits }) => {
-        const newPic = hits;
-        this.setState(({ hits }) => ({
-          hits: [...hits, ...newPic],
-          status: 'resolved',
-        }));
-      });
+      const data = await fetchPic(query, page);
+      console.log(data);
+      this.setState(() => ({
+        images: [...data.hits],
+        status: 'resolved',
+      }));
       return;
     }
+
     if (this.state.page !== prevState.page) {
       this.setState({ status: 'pending' });
-      fetchPic(this.state.query, this.state.page).then(({ hits }) => {
-        const newPic = hits;
-        this.setState(({ hits }) => ({
-          hits: [...hits, ...newPic],
-          status: 'resolved',
-        }));
+      const data = await fetchPic(this.state.query, this.state.page);
+      this.setState(({ images }) => ({
+        images: [...images, ...data.hits],
+        status: 'resolved',
+      }));
+
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
       });
     }
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
   }
 
   resetList() {
@@ -65,7 +64,7 @@ class App extends Component {
   };
 
   render() {
-    const { hits, error, status } = this.state;
+    const { images, error, status } = this.state;
     if (status === 'idle') {
       return <Searchbar onSubmit={this.getInput} />;
     }
@@ -77,7 +76,7 @@ class App extends Component {
         <>
           <Searchbar onSubmit={this.getInput} />
           <ImageGallery>
-            <ImageGalleryItem hits={hits} />
+            <ImageGalleryItem hits={images} />
           </ImageGallery>
           {status === 'pending' ? (
             <Loader
@@ -89,7 +88,7 @@ class App extends Component {
               timeout={3000} //3 secs
             />
           ) : null}
-          <div>{hits.length ? <Button getPage={this.getPage} /> : null}</div>
+          <div>{images.length ? <Button getPage={this.getPage} /> : null}</div>
         </>
       );
     }
