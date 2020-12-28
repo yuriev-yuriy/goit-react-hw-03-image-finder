@@ -24,7 +24,7 @@ class App extends Component {
       this.resetList();
       const data = await fetchPic(query, page);
       console.log(data);
-      this.setState(() => ({
+      this.setState(({}) => ({
         images: [...data.hits],
         status: 'resolved',
       }));
